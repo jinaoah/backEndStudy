@@ -18,7 +18,24 @@ app.get('', (req, res) => {
 
 //ERROR!!) req.body를 콘솔에 찍어보면 undefined가 나옴
 //회원가입, membertbl 테이블에 접근하여 입력받은 데이터를 삽입
-app.use('/register', registerRouter);
+// app.use('/register', registerRouter);
+
+app.post('/login', (req, res) => {
+    const inputID = req.body.login_id;
+    const inputPW = req.body.login_pw;
+
+    if(inputID && inputPW) { //id, pw가 입력되었는지 확인
+        pool.getConnection()
+        .then(conn => {
+            let select = 'SELECT * FROM membertbl WHERE user_id = ? AND password = ?';
+            conn.query(select, [inputID, inputPW], (err, results) => {
+                if(results.length > 0) {
+                    
+                }
+            })
+        })
+    }
+})
 
 app.post('/register', (req, res) => {
     console.log(req.body);
@@ -31,16 +48,29 @@ app.post('/register', (req, res) => {
     let year = date.getFullYear();
     let month = ('0' + (date.getMonth() + 1)).slice(-2);
     let day = ('0' + date.getDate()).slice(-2);
-    let dateStr = year + '-' + month  + '-' + day;
+    let created_date = year + '-' + month  + '-' + day;
 
     pool.getConnection()
-        .then(conn => {
-            let sql = `INSERT INTO membertbl VALUES (?,?,?,?,?)`;
-            conn.query(sql, [id, email, pw, name, dateStr], (err, result) => {
-                if(err) throw err;
-            });
-            conn.release(); //연결 풀 반환
-            res.send(`<script type="text/javascript">alert("${name}님 환영합니다!"); document.location.href="/";</script>`);
+        .then(conn => { //mariaDB와 연결 성공!!
+            console.log('mariaDB와 연결 성공!!');
+            if(id && email && pw && name) {
+                let sql = 'SELECT * FROM membertbl WHERE user_id = ?';
+                conn.query(sql, [id], function (err, row) {
+                    console.log(row);
+                    if(row.length > 0){
+                        res.write("<script>alert('이미 사용중인 id 입니다.');</script>")
+                    }else {
+                        let insert = 'INSERT INTO membertbl VALUES(?,?,?,?,?);';
+                        let params = [id, email, pw, name, created_date];
+                        conn.query(insert, params, function (err, result) {
+                            res.write("<script>alert(`${name}님 환영합니다.`);</script>")
+                            res.write("<script>window.location=\"./\"</script>");
+                            if(err) throw err;
+                        })
+                    }
+                })
+                conn.release();
+            }
         })
         .catch(err => {
             console.log("DB 연결 실패 : " + err);
