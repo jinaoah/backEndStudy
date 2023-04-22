@@ -6,7 +6,7 @@ const session = require('express-session');
 const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
 
-dotenv.config();
+dotenv.config(); //.env 연결
 const pageRouter = require('./routes/page');
 const app = express();
 
@@ -20,8 +20,8 @@ nunjucks.configure('views', {
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.json()); //JSON 요청을 구문 분석하고 구문 분석된 데이터 req.body
+app.use(express.urlencoded({extended:false})); //false이므로 queryString 모듈 사용
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
     resave: false,
