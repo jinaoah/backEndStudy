@@ -33,7 +33,7 @@ exports.login = async (req, res, next) => {
             return next(authError);
         }
         if(!user) {
-            return res.redirect(`/?loginError=${info.message}`);
+            return res.redirect(`/?loginError=${info.message}`);//Missing credentials
         }
         return req.login(user, (loginError) => {
             if(loginError) {

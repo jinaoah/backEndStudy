@@ -10,6 +10,9 @@ const router = express.Router();
 router.post('/join', isNotLoggedIn, join);
 //POST /auth/login
 router.post('/login', isNotLoggedIn, login);
+router.post('/', (req, res) => {
+    console.log(req.body);
+})
 //GET /auth/logout
 router.get('/logout', isLoggedIn, logout);
 

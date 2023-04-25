@@ -12,6 +12,7 @@ router.use((req, res, next) => {
     next();
 });
 //isLoggedIn 미들웨어 사용
+//get : http 함수
 router.get('/profile', isLoggedIn, renderProfile); //자신의 프로필은 로그인을 해야 볼 수 있음
 router.get('/join', isNotLoggedIn, renderJoin);
 router.get('/', renderMain);
